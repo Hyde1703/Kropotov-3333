@@ -10,7 +10,7 @@ const PORT = 3000;
 const dbConfig = {
   host: 'localhost',
   user: 'root',
-  password: 'root',
+  password: '',
   database: 'todolist',
   multipleStatements: true
 };
@@ -29,14 +29,12 @@ async function requireAuth(req, res) {
 
 async function createItem(userId, text) {
     const connection = await mysql.createConnection(dbConfig);
-
     try {
         const [result] = await connection.execute(
-            'INSERT INTO items (text, user_id) VALUES (?, ?)', [text, userId]
+            'INSERT INTO items (text, user_id) VALUES (?, ?)',
+            [text, userId]
         );
         return result.insertId;
-	} catch (error) {
-		console.log(error);
     } finally {
         await connection.end();
     }
@@ -44,12 +42,15 @@ async function createItem(userId, text) {
 
 async function updateItem(userId, itemId, text) {
     const connection = await mysql.createConnection(dbConfig);
+
     try {
         const [result] = await connection.execute(
-            'UPDATE items SET text = ? WHERE id = ? AND user_id = ?',
-            [text, itemId, userId]
+            'UPDATE items SET text = ? WHERE id = ? AND user_id = ?', [text, itemId, userId]
         );
+		
         return result.affectedRows > 0;
+	} catch (error) {
+		console.log(error);
     } finally {
         await connection.end();
     }
